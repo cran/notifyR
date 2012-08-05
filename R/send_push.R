@@ -9,7 +9,7 @@ function(user,message,title="",device="",url="",url_title="",priority=FALSE,time
     } else {
     stop("Message is missing.",call.=FALSE)
     }
-  if (url.exists("https://api.pushover.net/")) {
+  if (url.exists("https://api.pushover.net/",.opts=list(ssl.verifypeer = FALSE))) {
     } else {
     stop("No Connection to API.",call.=FALSE)
     }
@@ -26,7 +26,7 @@ function(user,message,title="",device="",url="",url_title="",priority=FALSE,time
     warning("The url title has more than 50 characters and will be shortened.",call.=FALSE)
     message <- substr(url_title,1,50)
   }
- if (priority==FALSE) {
+ if (!priority) {
    priority <- ""
    } else {
    priority <- "1"
@@ -35,15 +35,17 @@ function(user,message,title="",device="",url="",url_title="",priority=FALSE,time
   po <- list(token = as.character(token), user = as.character(user), message = as.character(message), title = as.character(title), device = as.character(device), url = as.character(url), url_title = as.character(url_title), priority = as.character(priority), timestamp = as.character(floor(as.numeric(timestamp))))
   
   result <- suppressWarnings(postForm("https://api.pushover.net/1/messages.json",
-                  "token" = po$token,
-                  "user" = po$user,
-                  "message" = po$message,
-                  "title" = po$title,
-                  "device" = po$device,
-                  "url" = po$url,
-                  "url_title" = po$url_title,
-                  "priority" = po$priority,
-                  "timestamp" = po$timestamp))
+                  .params=list(token = po$token,
+                  user = po$user,
+                  message = po$message,
+                  title = po$title,
+                  device = po$device,
+                  url = po$url,
+                  url_title = po$url_title,
+                  priority = po$priority,
+                  timestamp = po$timestamp),
+                  .opts=list(ssl.verifypeer = FALSE)
+                  ))
   result <- fromJSON(result)
   if (result$status == 1) {
     
